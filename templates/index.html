@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Happy Birthday, {{ birthday.name }}!{% endblock %}
+
+{% block body %}
+<div class="stage">
+  <canvas id="stage-canvas" aria-hidden="true"></canvas>
+
+  <div class="overlay">
+    <header class="hud">
+      <button id="palette-button" class="hud-button" type="button" aria-live="polite">
+        <span class="hud-icon" aria-hidden="true">🎨</span>
+        <span class="hud-label">Theme: <strong id="palette-name">…</strong></span>
+      </button>
+      <button id="music-button" class="hud-button" type="button" aria-pressed="false">
+        <span class="hud-icon" aria-hidden="true">🔇</span>
+        <span class="hud-label">Music</span>
+      </button>
+    </header>
+
+    <main class="hero">
+      <p class="eyebrow">{{ birthday.eyebrow }}</p>
+
+      <h1 class="title" id="title" aria-label="Happy Birthday">
+        <span class="title-word">Happy</span>
+        <span class="title-word">Birthday</span>
+      </h1>
+
+      <p class="name">{{ birthday.name }}</p>
+
+      <p class="age-badge">
+        <span class="age-number">{{ birthday.age }}</span>
+        <span class="age-label">years of beautiful existence !</span>
+      </p>
+
+      <p class="message">{{ birthday.message }}</p>
+    </main>
+
+    <footer class="hint">
+      <span>Click for fireworks</span>
+      <span class="hint-dot" aria-hidden="true">•</span>
+      <span>Drag for confetti</span>
+      <span class="hint-dot" aria-hidden="true">•</span>
+      <span>Tap the cake</span>
+      <span class="hint-dot" aria-hidden="true">•</span>
+      <span><kbd>C</kbd> theme</span>
+      <span class="hint-dot" aria-hidden="true">•</span>
+      <span><kbd>M</kbd> music</span>
+    </footer>
+  </div>
+
+  <div class="counter" id="counter" aria-hidden="true">
+    <span id="counter-value">0</span> fireworks
+  </div>
+</div>
+
+<script>
+  window.__BIRTHDAY__ = {{ birthday.as_dict() | tojson }};
+</script>
+<script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

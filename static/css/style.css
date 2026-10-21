@@ -1,0 +1,363 @@
+/* ---------------------------------------------------------------------------
+   Birthday celebration -- page chrome.
+
+   Every colour comes from a custom property so the palette system can retint
+   the page at runtime. The values below are the "Ember" defaults from
+   config.py; JavaScript overwrites them as palettes cross-fade.
+--------------------------------------------------------------------------- */
+
+:root {
+  --bg-0: #1a0508;
+  --bg-1: #6b1a12;
+  --text: #fff4e6;
+  --accent: #ff8a3d;
+  --ramp-0: #7a1020;
+  --ramp-1: #ff3d00;
+  --ramp-2: #ff6d1f;
+  --ramp-3: #ffa62b;
+  --ramp-4: #ffd166;
+
+  --font-display: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg-0);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#stage-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* The overlay floats above the canvas but only the buttons take clicks, so
+   every other pixel still reaches the particle engine. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ------------------------------------------------------------------- HUD -- */
+
+.hud {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.hud-button {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: color-mix(in srgb, var(--bg-1) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.hud-button:hover {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--bg-1) 75%, transparent);
+  border-color: var(--accent);
+}
+
+.hud-button:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.hud-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.hud-label {
+  white-space: nowrap;
+}
+
+.hud-label strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------------------- HERO -- */
+
+.hero {
+  text-align: center;
+  max-width: min(92vw, 54rem);
+  padding: 0 1rem;
+  transform: translateY(-2vh);
+}
+
+.eyebrow {
+  margin: 0 0 0.6rem;
+  font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text) 65%, transparent);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.6rem, 11vw, 8rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.28em;
+}
+
+.title-word {
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+/* Each letter is animated into place by the spring in main.js; this is the
+   resting state and the reduced-motion fallback. */
+.title-char {
+  display: inline-block;
+  transform: translateY(0) rotate(0deg);
+  will-change: transform;
+  /* A vertical gradient keeps every letter identical, so the words still read
+     as one headline once they animate independently. */
+  background: linear-gradient(180deg, var(--ramp-4) 0%, var(--ramp-3) 45%, var(--ramp-2) 78%, var(--ramp-1) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.title--static {
+  justify-content: center;
+  background: linear-gradient(100deg, var(--ramp-2), var(--ramp-4));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.name {
+  margin: clamp(0.4rem, 1.5vw, 1rem) 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 15vw, 9rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 55%, transparent);
+  opacity: 0;
+  transform: translateY(24px);
+  animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 500ms forwards;
+}
+
+.age-badge {
+  margin: clamp(0.8rem, 2.4vw, 1.6rem) auto 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--bg-1) 45%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 700ms forwards;
+}
+
+.age-number {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.age-label {
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  color: color-mix(in srgb, var(--text) 78%, transparent);
+}
+
+.message {
+  margin: clamp(1rem, 3vw, 2rem) auto 0;
+  max-width: 40rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--text) 82%, transparent);
+  opacity: 0;
+  transform: translateY(18px);
+  animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 850ms forwards;
+}
+
+.back-link {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+/* ----------------------------------------------------------------- HINT -- */
+
+.hint {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: clamp(0.68rem, 1.5vw, 0.82rem);
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--text) 55%, transparent);
+  opacity: 0;
+  animation: rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 1200ms forwards;
+}
+
+.hint-dot {
+  opacity: 0.5;
+}
+
+.hint kbd {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  font: inherit;
+  font-size: 0.92em;
+  border: 1px solid color-mix(in srgb, var(--text) 35%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-1) 55%, transparent);
+}
+
+/* -------------------------------------------------------------- COUNTER -- */
+
+.counter {
+  position: absolute;
+  left: clamp(0.75rem, 2vw, 1.4rem);
+  bottom: clamp(0.75rem, 2vw, 1.4rem);
+  z-index: 3;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text) 45%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+#counter-value {
+  color: var(--accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ KEYFRAMES -- */
+
+@keyframes rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* --------------------------------------------------------------- STATIC -- */
+
+.stage--static {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--ramp-1) 35%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--bg-0), var(--bg-1));
+}
+
+.stage--static .overlay {
+  position: static;
+}
+
+.stage--static .hero {
+  transform: none;
+}
+
+/* -------------------------------------------------------- REDUCED MOTION -- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+
+  .name,
+  .age-badge,
+  .message,
+  .hint {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------- SMALL -- */
+
+@media (max-width: 520px) {
+  .hud {
+    justify-content: center;
+  }
+
+  .hud-label {
+    font-size: 0.78rem;
+  }
+
+  .hero {
+    transform: translateY(-4vh);
+  }
+}

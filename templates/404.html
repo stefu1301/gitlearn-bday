@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Page not found{% endblock %}
+
+{% block body %}
+<div class="stage stage--static">
+  <div class="overlay">
+    <main class="hero">
+      <p class="eyebrow">Lost in the fireworks</p>
+      <h1 class="title title--static">404</h1>
+      <p class="name">{{ birthday.name }}'s party is still going.</p>
+      <p class="message"><a class="back-link" href="{{ url_for('index') }}">Go back to the celebration →</a></p>
+    </main>
+  </div>
+</div>
+{% endblock %}
