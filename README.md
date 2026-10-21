@@ -47,7 +47,7 @@ into your system Python.
 | `M` | Toggle the music |
 
 **Colour**
-- Five palettes: Ember, Ocean, Neon, Pastel, Gold
+- Six palettes: Ember, Ocean, Neon, Pastel, Gold, Nova
 - Cross-fade happens in **OKLab**, so red → blue never passes through mud
 - Particles store a *ramp slot* instead of a colour, so confetti already in
   the air changes colour along with the background
@@ -73,7 +73,7 @@ class BirthdayConfig:
     message: str = "Here's to a year of bold dreams..."
     eyebrow: str = "Today is a special day"
     music_enabled: bool = True
-    palettes: tuple[Palette, ...] = (EMBER, OCEAN, NEON, PASTEL, GOLD)
+    palettes: tuple[Palette, ...] = (EMBER, OCEAN, NEON, PASTEL, GOLD, NOVA)
     default_palette: int = 0
 ```
 
@@ -91,8 +91,12 @@ MINT = Palette(
     accent="#3fd0a9",
 )
 
-PALETTES = (EMBER, OCEAN, NEON, PASTEL, GOLD, MINT)
+PALETTES = (EMBER, OCEAN, NEON, PASTEL, GOLD, NOVA, MINT)
 ```
+
+**Always append, never insert.** The browser remembers a chosen palette by its
+index in this tuple, so dropping a new palette in the middle would silently
+change the theme for anyone who has already visited the page.
 
 Each palette has five ramp stops running from darkest to brightest. The
 particle engine samples that ramp, so the stops decide the colour of

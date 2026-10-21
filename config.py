@@ -76,7 +76,18 @@ GOLD = Palette(
     accent="#ffc93c",
 )
 
-PALETTES: tuple[Palette, ...] = (EMBER, OCEAN, NEON, PASTEL, GOLD)
+NOVA = Palette(
+    name="Nova",
+    bg=("#050409", "#120a26"),
+    ramp=("#141033", "#2e2bff", "#8b2be2", "#ff2e88", "#ffc9de"),
+    text="#fff0f7",
+    accent="#ff2e88",
+)
+
+# Nova is appended last on purpose: the browser remembers a chosen palette by
+# its index, so inserting a new one in the middle would silently change the
+# theme for anyone who has already visited.
+PALETTES: tuple[Palette, ...] = (EMBER, OCEAN, NEON, PASTEL, GOLD, NOVA)
 
 
 @dataclass(frozen=True)

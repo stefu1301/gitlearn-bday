@@ -30,7 +30,7 @@ def test_index_embeds_the_config_as_json(client):
 
 def test_index_includes_every_palette(client):
     body = client.get("/").get_data(as_text=True)
-    for name in ("Ember", "Ocean", "Neon", "Pastel", "Gold"):
+    for name in ("Ember", "Ocean", "Neon", "Pastel", "Gold", "Nova"):
         assert name in body
 
 
@@ -40,8 +40,18 @@ def test_api_config(client):
     payload = response.get_json()
     assert payload["name"] == "anofu"
     assert payload["age"] == 18
-    assert len(payload["palettes"]) == 5
+    assert len(payload["palettes"]) == 6
     assert payload["palettes"][0]["name"] == "Ember"
+
+
+def test_palette_indices_are_stable():
+    """Existing browsers store a palette index, so new palettes must be
+    appended rather than inserted, or saved themes would silently change."""
+    from config import PALETTES
+
+    names = [palette.name for palette in PALETTES]
+    assert names[:5] == ["Ember", "Ocean", "Neon", "Pastel", "Gold"]
+    assert names[5] == "Nova"
 
 
 def test_healthz(client):
